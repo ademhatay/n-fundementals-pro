@@ -1,2 +1,14 @@
 ### FETCH ALL SONGS 
 GET http://localhost:3000/songs
+
+### FETCH SONG BY ID
+GET http://localhost:3000/songs/1
+
+### CREATE SONG
+POST http://localhost:3000/songs
+
+### UPDATE SONG BY ID
+PUT http://localhost:3000/songs/1
+
+### DELETE SONG BY ID
+DELETE http://localhost:3000/songs/1

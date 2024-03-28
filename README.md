@@ -157,3 +157,4 @@ To create a new controller, you can use the Nest CLI command:
 $ nest generate controller <controller-name>
 ```
 Tip: You can also use the shorthand notation `nest g co <controller-name>`.
+Tip-2: If you want to doesn't create a spec file you can use `--no-spec` flag.
