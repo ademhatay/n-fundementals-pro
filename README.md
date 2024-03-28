@@ -156,15 +156,21 @@ To create a new controller, you can use the Nest CLI command:
 ```bash
 $ nest generate controller <controller-name>
 ```
-Tip: You can also use the shorthand notation `nest g co <controller-name>`.
-Tip-2: If you want to doesn't create a spec file you can use `--no-spec` flag.
 
+*Example*
+```bash
+$ nest g co songs --no-spec
+```
 ## Create Service
 
 A service in NestJS is a class that encapsulates business logic and interacts with data sources. Services are typically injected into controllers and other services using dependency injection. To create a new service, you can use the Nest CLI command:
 
 ```bash
 $ nest generate service <service-name>
+```
+*Example*
+```bash
+$ nest g co songs --no-spec
 ```
 
 ## Create Module
