@@ -193,4 +193,58 @@ To create a controller manually, you simply need to define a TypeScript file (e.
 To create a service manually, define a TypeScript file (e.g., example.service.ts) with a class annotated with @Injectable(). This class contains methods to encapsulate business logic that can be injected into controllers or other services.
 
 # Module 2
+
+```bash
+$ pnpm add class-validator class-transformer
+```
 ## Middleware
+
+Middleware in NestJS is a function that has access to the request and response objects. It can execute any code, make changes to the request and response objects, end the request-response cycle, and call the next middleware function in the stack. Middleware can be used to perform tasks such as logging, authentication, error handling, and more.
+
+<img src="https://miro.medium.com/v2/resize:fit:945/1*RgPEcCE3mHSGR-fS5lXTCQ.png" alt="Middleware" width="500"/>
+
+To create a middleware in NestJS, you can use the `@Injectable()` decorator to define a class that implements the `NestMiddleware` interface. The class should have
+a `use()` method that takes the request, response, and next function as arguments. The `use()` method can perform any necessary operations and call the next function to pass control to the next middleware in the stack.
+
+```bash
+$ nest generate middleware <middleware-name>
+```
+
+*Example*
+```bash
+nest g mi common/middleware/logger --no-spec --no-flat
+```
+
+```typescript
+import { Injectable, NestMiddleware } from '@nestjs/common';
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use(req: any, res: any, next: () => void) {
+    console.log('Request...', new Date().toLocaleTimeString('tr-TR'));
+    next();
+  }
+}
+```
+*Applying Middleware*
+You can apply middleware globally, per module, or per route. To apply middleware globally, you can use the `configure()` method of the root module (AppModule) and call the `apply()` method on the `MiddlewareConsumer` object. You can then specify the middleware to be applied using the `forRoutes()` method.
+```typescript
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { SongsModule } from './songs/songs.module';
+import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
+
+@Module({
+  imports: [SongsModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('songs');
+  }
+}
+```

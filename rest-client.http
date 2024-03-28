@@ -6,6 +6,14 @@ GET http://localhost:3000/songs/1
 
 ### CREATE SONG
 POST http://localhost:3000/songs
+Content-Type: application/json
+
+{
+    "title": "Legends Never Die",
+    "artist": ["Against The Current", "League of Legends"],
+    "releaseDate": "2024-03-27",
+    "duration": "02:30"
+}
 
 ### UPDATE SONG BY ID
 PUT http://localhost:3000/songs/1
