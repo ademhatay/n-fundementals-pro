@@ -200,9 +200,6 @@ To create a service manually, define a TypeScript file (e.g., example.service.ts
 
 # Module 2
 
-```bash
-$ pnpm add class-validator class-transformer
-```
 ## Middleware
 
 Middleware in NestJS is a function that has access to the request and response objects. It can execute any code, make changes to the request and response objects, end the request-response cycle, and call the next middleware function in the stack. Middleware can be used to perform tasks such as logging, authentication, error handling, and more.
@@ -254,3 +251,160 @@ export class AppModule implements NestModule {
   }
 }
 ```
+
+## Exception Filter
+
+An exception filter in NestJS is a mechanism used to intercept and handle exceptions thrown during the execution of an HTTP request pipeline. It allows developers to centralize error handling logic and customize the response sent back to the client in case of errors.
+
+```bash
+$ nest generate filter <filter-name>
+```
+#### Usage:
+
+1. **Defining an Exception Filter**:
+    
+    To define an exception filter, you need to create a class that implements the `ExceptionFilter` interface provided by NestJS. This class should have a `catch()` method, where you can implement the logic to handle exceptions.
+    
+     ```typescript
+    
+    import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
+    import { Response } from 'express';
+    
+    @Catch(HttpException)
+    export class HttpExceptionFilter implements ExceptionFilter {
+      catch(exception: HttpException, host: ArgumentsHost) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse<Response>();
+        const status = exception.getStatus();
+    
+        response.status(status).json({
+          statusCode: status,
+          message: exception.message,
+        });
+      }
+    }
+     ```
+    
+2. **Applying the Exception Filter**:
+    
+    You can apply the exception filter globally to handle exceptions across the entire application or selectively to specific controllers or routes.
+    
+    - **Globally**:
+        
+        ```typescript
+        
+        import { Catch, ExceptionFilter, HttpServer, HttpStatus } from '@nestjs/common';
+        import { AllExceptionsFilter } from './common/filters/exception.filter';
+        
+        async function bootstrap() {
+          const app = await NestFactory.create(AppModule);
+          app.useGlobalFilters(new HttpExceptionFilter());
+          await app.listen(3000);
+        }
+        bootstrap();
+
+        ```
+        
+    - **Locally**:
+        
+         ```typescript
+        
+        import { Controller, Get, Post, UseFilters } from '@nestjs/common';
+        import { HttpExceptionFilter } from './common/filters/exception.filter';
+        
+        @Controller('cats')
+        @UseFilters(new HttpExceptionFilter())
+        export class CatsController {
+          // Controller methods...
+        }
+         ```
+        
+3. **Using with `class-validator` and `class-transformer`**:
+    
+    You can combine exception filters with `class-validator` and `class-transformer` to handle validation errors gracefully. For example, in a controller, you can use these libraries to validate incoming request payloads, and if validation fails, throw a custom exception that will be caught by the exception filter.
+    
+    ```typescript
+    
+    import { Controller, Post, Body, UseFilters } from '@nestjs/common';
+    import { HttpExceptionFilter } from './common/filters/exception.filter';
+    import { CreateUserDto } from './dto/create-user.dto';
+    import { ValidateUserPipe } from './pipes/validate-user.pipe';
+    
+    @Controller('users')
+    @UseFilters(new HttpExceptionFilter())
+    export class UsersController {
+      @Post()
+      createUser(@Body(new ValidateUserPipe()) createUserDto: CreateUserDto) {
+        // Logic to create user...
+      }
+    }
+     ```
+    
+  Here, `ValidateUserPipe` is a custom pipe that uses `class-validator` to validate the incoming `createUserDto` object. If validation fails, it throws a `BadRequestException`, which will be caught by the exception filter and handled appropriately.
+
+## Transform Param Using ParseIntPipe
+The ParseIntPipe in NestJS is a built-in pipe that transforms route parameters into integers. It is used to validate and transform route parameters to ensure they are of the correct type before being passed to the controller method.
+
+*Example*:
+Let's say we have a controller method that retrieves a user by their ID from the database. We want to ensure that the userId route parameter is always an integer. We can use the ParseIntPipe to achieve this:
+
+```typescript
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { UserService } from './user.service';
+import { User } from './user.entity';
+
+@Controller('users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Get(':userId')
+  async getUserById(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
+    return this.userService.getUserById(userId);
+  }
+}
+```
+
+In this example:
+
+- We import `ParseIntPipe` from `@nestjs/common`.
+- In the `getUserById` method, we use `@Param('userId', ParseIntPipe)` to specify that the `userId` route parameter should be transformed into an integer using the `ParseIntPipe`.
+- The transformed `userId` is then passed to the `getUserById` method of the `UserService` to retrieve the user from the database.
+
+## Validate Request Body using class Validator
+
+Class Validator is a library that allows for declarative validation of objects in TypeScript and JavaScript. In NestJS, it can be used to validate request bodies, ensuring that the incoming data adheres to specified rules or constraints.
+
+*Usage*:
+To use Class Validator for validating request bodies in NestJS, follow these steps:
+1- Install the `class-validator` and `class-transformer` packages:
+```bash
+$ pnpm add class-validator class-transformer
+```
+
+2- Define a DTO (Data Transfer Object) class representing the structure of the request body, and annotate its properties with validation decorators from `class-validator`.
+```typescript
+// create-user.dto.ts
+import { IsString, IsEmail } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
+}
+```
+3- Use the DTO class in your controller method and apply validation using the `ValidateNested()` decorator from `class-validator`.
+```typescript
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  createUser(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    // Logic to create user...
+  }
+}
+```
+Here, the `ValidationPipe` is used to automatically validate the incoming request body against the rules defined in the `CreateUserDto` class. If validation fails, a `BadRequestException` will be thrown automatically by NestJS.

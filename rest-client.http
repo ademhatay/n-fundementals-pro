@@ -2,7 +2,7 @@
 GET http://localhost:3000/songs
 
 ### FETCH SONG BY ID
-GET http://localhost:3000/songs/1
+GET http://localhost:3000/songs/12a
 
 ### CREATE SONG
 POST http://localhost:3000/songs
