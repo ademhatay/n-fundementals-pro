@@ -158,3 +158,39 @@ $ nest generate controller <controller-name>
 ```
 Tip: You can also use the shorthand notation `nest g co <controller-name>`.
 Tip-2: If you want to doesn't create a spec file you can use `--no-spec` flag.
+
+## Create Service
+
+A service in NestJS is a class that encapsulates business logic and interacts with data sources. Services are typically injected into controllers and other services using dependency injection. To create a new service, you can use the Nest CLI command:
+
+```bash
+$ nest generate service <service-name>
+```
+
+## Create Module
+2 ways to create a module in NestJS:
+
+1. Using the Nest CLI Command:
+    
+    Creating a module using the Nest CLI command is straightforward. You can create a new module by running the following command:
+    
+    `$ nest generate module <module-name>` 
+    
+    This command creates a module with the specified name and automatically adds the necessary files and folders. This method allows for quick and convenient module creation.
+    
+2. Manually Creating a Module File:
+    
+    If you prefer to create the module manually, you'll need to create a new TypeScript file (e.g., `example.module.ts`). In this file, define a module class annotated with the `@Module()` decorator. The `@Module()` decorator takes a configuration object with properties such as `imports`, `controllers`, `providers`, and `exports` to define the module's structure.
+    
+    Manual creation offers more customization options and allows for the creation of more complex module structures. However, it may require more time and effort compared to using the Nest CLI command.
+  
+- Manually Creating Controllers:
+
+To create a controller manually, you simply need to define a TypeScript file (e.g., example.controller.ts) with a class annotated with @Controller(). Within this class, you can define methods to handle different HTTP requests, each annotated with decorators like @Get(), @Post(), etc.
+
+- Manually Creating Services:
+
+To create a service manually, define a TypeScript file (e.g., example.service.ts) with a class annotated with @Injectable(). This class contains methods to encapsulate business logic that can be injected into controllers or other services.
+
+# Module 2
+## Middleware
